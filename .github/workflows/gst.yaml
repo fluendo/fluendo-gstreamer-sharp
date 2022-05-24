@@ -1,0 +1,82 @@
+name: GStreamer Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        config:
+          - { os: macos-latest, arch: x64, cache_dir: '~/dragonfly', build_dir: '~/build', name: macos-x64 }
+          - { os: windows-latest, arch: x64, cache_dir: 'C:/Dragonfly', build_dir: 'c:/build', name: windows-x64 }
+    runs-on: ${{ matrix.config.os }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Cache Downloads
+        id: cache-downloads
+        uses: actions/cache@v3
+        with:
+          path: ${{ matrix.config.cache_dir }}
+          key: ${{ matrix.config.name }}-dragonfly-1
+      - name: Enable Developer Command Prompt
+        uses: ilammy/msvc-dev-cmd@v1.10.0
+        if: matrix.config.os == 'windows-latest'
+      - name: Setup .NET Core SDK 5.0
+        uses: actions/setup-dotnet@v1.7.2
+        with:
+          dotnet-version: "5.0.x"
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v0.9.7
+        with:
+          versionSpec: '5.x'
+      - name: Determine Version
+        uses: gittools/actions/gitversion/execute@v0.9.7
+        with:
+          useConfigFile: true
+      - name: Install Deps
+        run: python3 build.py -b ${{ matrix.config.build_dir }} -c ${{ matrix.config.cache_dir }} install_deps
+      - name: Install GStreamer
+        run: python3 build.py -b ${{ matrix.config.build_dir }} -c ${{ matrix.config.cache_dir }} install_gst_pkg
+      - name: Clone GStreamer
+        run: python3 build.py -b ${{ matrix.config.build_dir }} -c ${{ matrix.config.cache_dir }} clone_gst
+      - name: Configure GStreamer
+        run: python3 build.py -b ${{ matrix.config.build_dir }} -c ${{ matrix.config.cache_dir }} configure_gst
+      - name: Build GStreamer
+        run: python3 build.py -b ${{ matrix.config.build_dir }} -c ${{ matrix.config.cache_dir }} build_gst
+      - name: Build Custom GStreamer.Sharp
+        run: python3 build.py -b ${{ matrix.config.build_dir }} -c ${{ matrix.config.cache_dir }} build_gst_sharp
+      - name: Install Custom GStreamer.Sharp
+        run: python3 build.py -b ${{ matrix.config.build_dir }} -c ${{ matrix.config.cache_dir }} install_gst
+      - name: Create Nuget Package
+        run: python3 build.py -b ${{ matrix.config.build_dir }} -c ${{ matrix.config.cache_dir }} create_nuget_package
+      - name: Add Nuget Source
+        run: dotnet nuget add source --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/fluendo/index.json"
+      - name: Add Nuget API Key
+        run: ${{ matrix.config.cache_dir }}/nuget.exe setApiKey ${{ secrets.GITHUB_TOKEN }} -Source "https://nuget.pkg.github.com/fluendo/index.json"
+        if: matrix.config.os == 'windows-latest'
+      - name: Add Nuget API Key
+        run: mono ${{ matrix.config.cache_dir }}/nuget.exe setApiKey ${{ secrets.GITHUB_TOKEN }} -Source "https://nuget.pkg.github.com/fluendo/index.json"
+        if: matrix.config.os != 'windows-latest'
+      - name: Push nuget
+        run: python3 build.py -b ${{ matrix.config.build_dir }} -c ${{ matrix.config.cache_dir }} push_nuget_package
+        if: github.ref == 'refs/heads/main'
+      - uses: actions/delete-package-versions@v3
+        with:
+          package-name: 'Fluendo.GStreamer.Sharp.win-x64'
+          min-versions-to-keep: 5
+      - uses: actions/delete-package-versions@v3
+        with:
+          package-name: 'Fluendo.GStreamer.Sharp.osx'
+          min-versions-to-keep: 5
+      - uses: actions/delete-package-versions@v3
+        with:
+          package-name: 'Fluendo.GStreamer.Sharp'
+          min-versions-to-keep: 5
