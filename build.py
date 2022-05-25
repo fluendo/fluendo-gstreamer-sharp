@@ -180,7 +180,9 @@ class Build:
 
     def _push_nuget(self, name, version):
         path = self.build_dir / f"{name}.{version}.nupkg"
-        run(["dotnet", "nuget", "push", path, "--source", "github"])
+        run(["dotnet", "nuget", "push", path,
+            "--source", "https://nuget.pkg.github.com/fluendo/index.json",
+             "--api-key", os.environ["GITHUB_TOKEN"]])
 
     def _set_gst_version(self):
         self.gst_version = os.environ.get("GITVERSION_MAJORMINORPATCH", None)
