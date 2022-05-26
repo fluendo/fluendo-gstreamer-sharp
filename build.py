@@ -226,6 +226,10 @@ class BuildMacOS(Build):
 
         nuget = self.build_dir / "nuget"
         gst_native = nuget / "runtimes" / "osx" / "native"
+        gst_native_lib = gst_native / "lib"
+        gst_native_scanner_dir = nuget / "runtimes" / \
+            "osx" / "native" / "libexec" / "gstreamer-1.0"
+        gst_native_scanner_dir.mkdir(parents=True, exist_ok=True)
         gst_native_plugins = gst_native / "lib" / "gstreamer-1.0"
         gst_native_plugins.mkdir(parents=True, exist_ok=True)
         subprojects = self.gst_build_dir / "subprojects"
@@ -251,22 +255,22 @@ class BuildMacOS(Build):
             if not key in files or len(files[key]) < len(f):
                 files[key] = f
         for f in files.values():
-            shutil.copy(f, gst_native)
+            shutil.copy(f, gst_native_lib)
 
         for file in glob.glob(f'{gst_install_dir / "lib" / "gstreamer-1.0"}/*.dylib'):
             if not Path(file).is_symlink():
                 shutil.copy(file, gst_native_plugins)
         shutil.copy(gst_install_dir / "libexec" / "gstreamer-1.0" /
-                    "gst-plugin-scanner", gst_native)
+                    "gst-plugin-scanner", gst_native_scanner_dir)
 
         # Custom GStreamer
         shutil.copy(subprojects / "gst-plugins-bad" / "gst-libs" / "gst" / "mpegts" / "libgstmpegts-1.0.0.dylib",
-                    gst_native)
+                    gst_native_lib)
         shutil.copy(subprojects / "gst-plugins-bad" / "gst" / "mpegtsdemux" / "libgstmpegtsdemux.dylib",
                     gst_native_plugins)
 
         strip = os.environ.get("STRIP", "strip")
-        files_to_strip = glob.glob(f"{gst_native}/*dylib") + \
+        files_to_strip = glob.glob(f"{gst_native_lib}/*dylib") + \
             glob.glob(f"{gst_native_plugins}/*dylib")
         for f in files_to_strip:
             run([strip, "-SX", f])
