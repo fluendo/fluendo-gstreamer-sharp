@@ -19,56 +19,41 @@
 // Boston, MA 02111-1307, USA.
 
 
-namespace GLib {
+namespace GLib
+{
 
-	using System;
-	using System.Runtime.InteropServices;
-	
-	public class GException : Exception
-	{
-		IntPtr errptr;
+    using System;
+    using System.Runtime.InteropServices;
 
-		[DllImport (Global.GLibNativeDll, CallingConvention = CallingConvention.Cdecl)]
-		static extern IntPtr g_error_copy (IntPtr errptr);
+    public class GException : Exception
+    {
 
-		public GException (IntPtr errptr) : base ()
-		{
-			this.errptr = g_error_copy (errptr);
-		}
+        [DllImport(Global.GLibNativeDll, CallingConvention = CallingConvention.Cdecl)]
+        static extern void g_error_free(IntPtr errptr);
 
-		struct GError {
-			public int Domain;
-			public int Code;
-			public IntPtr Msg;
-		}
+        public GException(IntPtr errptr, bool owned = true) : base()
+        {
+            GError err = (GError)Marshal.PtrToStructure(errptr, typeof(GError));
+            Code = err.Code;
+            Domain = err.Domain;
+            Message = Marshaller.Utf8PtrToString(err.Msg);
+            if (owned)
+            {
+                g_error_free(errptr);
+            }
+        }
 
-		public int Code {
-			get {
-				GError err = (GError) Marshal.PtrToStructure (errptr, typeof (GError));
-				return err.Code;
-			}
-		}
+        struct GError
+        {
+            public int Domain;
+            public int Code;
+            public IntPtr Msg;
+        }
 
-		public int Domain {
-			get {
-				GError err = (GError) Marshal.PtrToStructure (errptr, typeof (GError));
-				return err.Domain;
-			}
-		}
+        public int Code { get; }
 
-		public override string Message {
-			get {
-				GError err = (GError) Marshal.PtrToStructure (errptr, typeof (GError));
-				return Marshaller.Utf8PtrToString (err.Msg);
-			}
-		}
+        public int Domain { get; }
 
-		[DllImport (Global.GLibNativeDll, CallingConvention = CallingConvention.Cdecl)]
-		static extern void g_error_free (ref IntPtr errptr);
-		~GException ()
-		{
-			g_error_free (ref errptr);
-		}
-	}
+        public override string Message { get; }
+    }
 }
-
