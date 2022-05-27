@@ -58,6 +58,7 @@ jobs:
       - name: Create Nuget Package
         run: python3 build.py -b ${{ matrix.config.build_dir }} -c ${{ matrix.config.cache_dir }} create_nuget_package
       - name: Push nuget
+        if: github.event_name != 'pull_request'
         run: python3 build.py -b ${{ matrix.config.build_dir }} -c ${{ matrix.config.cache_dir }} push_nuget_package
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
