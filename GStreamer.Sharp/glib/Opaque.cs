@@ -38,16 +38,15 @@ namespace GLib {
 			if (o == IntPtr.Zero)
 				return null;
 
-			Opaque opaque = (Opaque)Activator.CreateInstance(type, new object[] { o });
+			Opaque opaque = (Opaque)Activator.CreateInstance (type, new object [] { o });
 			if (owned) {
-				opaque.owned = true;
-			}
-			else {
 				if (opaque.owned) {
 					// The constructor took a Ref it shouldn't have, so undo it
-					opaque.Unref(o);
+					opaque.Unref (o);
 				}
-				opaque = opaque.Copy(o);
+				opaque.owned = true;
+			} else {
+				opaque = opaque.Copy (o);
 			}
 
 			return opaque;
