@@ -20,6 +20,11 @@
     <DebugType>None</DebugType>
     <DebugSymbols>False</DebugSymbols>
   </PropertyGroup>
+  <ItemGroup>
+    <None Update="GStreamer.Sharp.dll.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
       <Properties>
