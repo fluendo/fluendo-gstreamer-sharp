@@ -237,6 +237,9 @@ class BuildMacOS(Build):
         shutil.copy(self.source_dir / "GStreamer.Sharp" / "bin" /
                     "Release" / "netstandard2.0" / "GStreamer.Sharp.dll",
                     nuget)
+        shutil.copy(self.source_dir / "GStreamer.Sharp" / "bin" /
+                    "Release" / "netstandard2.0" / "GStreamer.Sharp.dll.config",
+                    nuget)
 
         # GStreamer
         gst_install_dir = self._get_gst_install_dir()
@@ -319,6 +322,9 @@ class BuildWin64(Build):
 
         shutil.copy(self.source_dir / "GStreamer.Sharp" / "bin" / "x64" /
                     "Release" / "netstandard2.0" / "GStreamer.Sharp.dll",
+                    nuget)
+        shutil.copy(self.source_dir / "GStreamer.Sharp" / "bin" / "x64" /
+                    "Release" / "netstandard2.0" / "GStreamer.Sharp.dll.config",
                     nuget)
 
         # GStreamer
