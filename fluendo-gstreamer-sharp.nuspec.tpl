@@ -11,8 +11,8 @@
     <repository type="git" url="https://github.com/fluendo/fluendo-gstreamer-sharp.git" />
   </metadata>
    <files>
-    <file src="nuget\*.dll" target="lib\netstandard2.0" />
-    <file src="nuget\*.dll.config" target="lib\netstandard2.0" />
+    <file src="nuget\*.dll" target="lib\net472" />
+    <file src="nuget\*.dll.config" target="lib\net472" />
     <file src="nuget\*.dll" target="lib\net5.0" />
   </files>
 </package>

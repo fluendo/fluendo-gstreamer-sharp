@@ -89,6 +89,8 @@ class Build:
         self.nuget_cmd = [self.cache_dir / "nuget.exe"]
         self._set_gst_version()
         self._set_nuget_version()
+        self.nuget_dir = self.build_dir / "nuget"
+        self.nuget_dir.mkdir(parents=True, exist_ok=True)
 
     def install_deps(self):
         run(["pip3", "install", "meson", "ninja"])
@@ -136,27 +138,20 @@ class Build:
         run("dotnet build GStreamer.Sharp/GStreamer.Sharp.sln -c Release ",
             cwd=self.source_dir, split=True)
 
-    def _sharp(self):
-        nuget = self.build_dir / "nuget"
-        nuget.mkdir(parents=True, exist_ok=True)
-
     def install_gst(self):
-        nuget = self.build_dir / "nuget"
-        nuget.mkdir(parents=True, exist_ok=True)
+        pass
 
     def install_gst_sharp_from_gstreamer(self):
-        nuget = self.build_dir / "nuget"
-        nuget.mkdir(parents=True, exist_ok=True)
         subprojects = self.gst_build_dir / "subprojects"
 
         gtk_sharp_src = subprojects / "gtk-sharp" / "Source"
 
-        shutil.copy(gtk_sharp_src / "gio" / "gio-sharp.dll", nuget)
-        shutil.copy(gtk_sharp_src / "glib" / "glib-sharp.dll", nuget)
+        shutil.copy(gtk_sharp_src / "gio" / "gio-sharp.dll", self.nuget_dir)
+        shutil.copy(gtk_sharp_src / "glib" / "glib-sharp.dll", self.nuget_dir)
         shutil.copy(subprojects / "gstreamer-sharp" /
-                    "sources" / "gstreamer-sharp.dll", nuget)
+                    "sources" / "gstreamer-sharp.dll", self.nuget_dir)
         shutil.copy(subprojects / "gstreamer-sharp" / "ges" /
-                    "gst-editing-services-sharp.dll", nuget)
+                    "gst-editing-services-sharp.dll", self.nuget_dir)
 
     def create_nuget_package(self):
         replacements = {'{version}': self.nuget_version,
@@ -169,6 +164,8 @@ class Build:
                     self.build_dir / f"fluendo-gstreamer-sharp-{self.nuget_platform}.nuspec")
         replace(self.build_dir /
                 f"fluendo-gstreamer-sharp-{self.nuget_platform}.nuspec", replacements)
+        shutil.copy(self.source_dir / "Fluendo.GStreamer.Sharp.native.targets",
+                    self.nuget_dir)
 
         run(self.nuget_cmd + ["pack", "fluendo-gstreamer-sharp.nuspec",
                               "-Verbosity", "detailed"], self.build_dir)
@@ -192,8 +189,8 @@ class Build:
 
     def _set_nuget_version(self):
         self.nuget_version = os.environ.get("GITVERSION_FULLSEMVER", None)
-        if self.gst_version is None:
-            self.gst_version = run(
+        if self.nuget_version is None:
+            self.nuget_version = run(
                 ["dotnet-gitversion", "/showvariable", "FullSemVer"])[0]
 
     def all_deps(self):
@@ -223,11 +220,9 @@ class BuildMacOS(Build):
 
     def install_gst(self):
         super().install_gst()
-
-        nuget = self.build_dir / "nuget"
-        gst_native = nuget / "runtimes" / "osx" / "native"
+        gst_native = self.nuget_dir / "runtimes" / "osx" / "native"
         gst_native_lib = gst_native / "lib"
-        gst_native_scanner_dir = nuget / "runtimes" / \
+        gst_native_scanner_dir = self.nuget_dir / "runtimes" / \
             "osx" / "native" / "libexec" / "gstreamer-1.0"
         gst_native_scanner_dir.mkdir(parents=True, exist_ok=True)
         gst_native_plugins = gst_native / "lib" / "gstreamer-1.0"
@@ -236,10 +231,10 @@ class BuildMacOS(Build):
 
         shutil.copy(self.source_dir / "GStreamer.Sharp" / "bin" /
                     "Release" / "netstandard2.0" / "GStreamer.Sharp.dll",
-                    nuget)
+                    self.nuget_dir)
         shutil.copy(self.source_dir / "GStreamer.Sharp" / "bin" /
                     "Release" / "netstandard2.0" / "GStreamer.Sharp.dll.config",
-                    nuget)
+                    self.nuget_dir)
 
         # GStreamer
         gst_install_dir = self._get_gst_install_dir()
@@ -314,18 +309,17 @@ class BuildWin64(Build):
     def install_gst(self):
         super().install_gst()
 
-        nuget = self.build_dir / "nuget"
-        gst_native = nuget / "runtimes" / "win-x64" / "native"
+        gst_native = self.nuget_dir / "runtimes" / "win-x64" / "native"
         gst_native_plugins = gst_native / "lib" / "gstreamer-1.0"
         gst_native_plugins.mkdir(parents=True, exist_ok=True)
         subprojects = self.gst_build_dir / "subprojects"
 
         shutil.copy(self.source_dir / "GStreamer.Sharp" / "bin" / "x64" /
                     "Release" / "netstandard2.0" / "GStreamer.Sharp.dll",
-                    nuget)
+                    self.nuget_dir)
         shutil.copy(self.source_dir / "GStreamer.Sharp" / "bin" / "x64" /
                     "Release" / "netstandard2.0" / "GStreamer.Sharp.dll.config",
-                    nuget)
+                    self.nuget_dir)
 
         # GStreamer
         gst_install_dir = self._get_gst_install_dir()
