@@ -165,7 +165,7 @@ class Build:
         replace(self.build_dir /
                 f"fluendo-gstreamer-sharp-{self.nuget_platform}.nuspec", replacements)
         shutil.copy(self.source_dir / "Fluendo.GStreamer.Sharp.native.targets",
-                    self.nuget_dir)
+                    self.nuget_dir / f"Fluendo.GStreamer.Sharp.{self.nuget_platform}.targets")
 
         run(self.nuget_cmd + ["pack", "fluendo-gstreamer-sharp.nuspec",
                               "-Verbosity", "detailed"], self.build_dir)
