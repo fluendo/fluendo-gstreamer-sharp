@@ -3,11 +3,11 @@
     <!-- Get preferred architecture and platform -->
     <PropertyGroup>
         <!-- 'x64' is the only supported arch -->
-        <FluendoGStreamerSharpArch>x86_64</FluendoGStreamerSharpArch>
+        <FluendoGStreamerSharpArch>x64</FluendoGStreamerSharpArch>
         <!-- Handle specific platform name for Windows, Linux and MacOSX -->
         <FluendoGStreamerSharpPlatform Condition="'$(FluendoGStreamerSharpPlatform)' == '' and '$([MSBuild]::IsOSPlatform('Windows'))' ">win7-$(FluendoGStreamerSharpArch)</FluendoGStreamerSharpPlatform>
         <FluendoGStreamerSharpPlatform Condition="'$(FluendoGStreamerSharpPlatform)' == '' and '$([MSBuild]::IsOSPlatform('Linux'))' ">linux-$(FluendoGStreamerSharpArch)</FluendoGStreamerSharpPlatform>
-        <FluendoGStreamerSharpPlatform Condition="'$(FluendoGStreamerSharpPlatform)' == '' and '$([MSBuild]::IsOSPlatform('OSX'))' ">osx</FluendoGStreamerSharpPlatform>
+        <FluendoGStreamerSharpPlatform Condition="'$(FluendoGStreamerSharpPlatform)' == '' and '$([MSBuild]::IsOSPlatform('OSX'))' ">osx-$(FluendoGStreamerSharpArch)</FluendoGStreamerSharpPlatform>
     </PropertyGroup>
 
     <!-- Copy native libraries to output directory -->
