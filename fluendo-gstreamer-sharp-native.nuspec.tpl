@@ -12,6 +12,6 @@
   </metadata>
    <files>
     <file src="nuget\runtimes\{platform}\native\**" target="runtimes\{platform}\native" />
-    <file src="nuget\Fluendo.GStreamer.Sharp.native.targets" target="build\net472" />
+    <file src="nuget\Fluendo.GStreamer.Sharp.{platform}.targets" target="build\net472" />
   </files>
 </package>
