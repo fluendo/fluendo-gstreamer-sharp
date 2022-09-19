@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <!-- Get preferred architecture and platform -->
-    <PropertyGroup>
+    <PropertyGroup Condition="'$(FluendoGStreamerSharpPlatform)' == ''">
         <!-- 'x64' is the only supported arch -->
         <FluendoGStreamerSharpArch>x64</FluendoGStreamerSharpArch>
         <!-- Handle specific platform name for Windows, Linux and MacOSX -->
-        <FluendoGStreamerSharpPlatform Condition="'$(FluendoGStreamerSharpPlatform)' == '' and '$([MSBuild]::IsOSPlatform('Windows'))' ">win7-$(FluendoGStreamerSharpArch)</FluendoGStreamerSharpPlatform>
-        <FluendoGStreamerSharpPlatform Condition="'$(FluendoGStreamerSharpPlatform)' == '' and '$([MSBuild]::IsOSPlatform('Linux'))' ">linux-$(FluendoGStreamerSharpArch)</FluendoGStreamerSharpPlatform>
-        <FluendoGStreamerSharpPlatform Condition="'$(FluendoGStreamerSharpPlatform)' == '' and '$([MSBuild]::IsOSPlatform('OSX'))' ">osx-$(FluendoGStreamerSharpArch)</FluendoGStreamerSharpPlatform>
+        <FluendoGStreamerSharpPlatform Condition="$([MSBuild]::IsOSPlatform('Windows'))">win-$(FluendoGStreamerSharpArch)</FluendoGStreamerSharpPlatform>
+        <FluendoGStreamerSharpPlatform Condition="$([MSBuild]::IsOSPlatform('Linux'))">linux-$(FluendoGStreamerSharpArch)</FluendoGStreamerSharpPlatform>
+        <FluendoGStreamerSharpPlatform Condition="$([MSBuild]::IsOSPlatform('OSX'))">osx-$(FluendoGStreamerSharpArch)</FluendoGStreamerSharpPlatform>
     </PropertyGroup>
 
     <!-- Copy native libraries to output directory -->
     <ItemGroup>
-        <None Condition="Exists('$(MSBuildThisFileDirectory)..\runtime\$(FluendoGStreamerSharpPlatform)\native')"
-              Include="$(MSBuildThisFileDirectory)..\runtime\$(FluendoGStreamerSharpPlatform)\native\**"
+        <None Condition="Exists('$(MSBuildThisFileDirectory)..\..\runtimes\$(FluendoGStreamerSharpPlatform)\native')"
+              Include="$(MSBuildThisFileDirectory)..\..\runtimes\$(FluendoGStreamerSharpPlatform)\native\**"
               Link="%(RecursiveDir)%(Filename)%(Extension)"
               Visible="false"
               CopyToOutputDirectory="Always" />
