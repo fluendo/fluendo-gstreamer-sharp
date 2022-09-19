@@ -277,7 +277,8 @@ class BuildMacOS(Build):
         relocator = OSXRelocator(False)
         strip = os.environ.get("STRIP", "strip")
         files_to_post_process = glob.glob(f"{gst_native}/*dylib") + \
-            glob.glob(f"{gst_native_plugins}/*dylib")
+            glob.glob(f"{gst_native_plugins}/*dylib") + \
+            [gst_native_scanner_dir / "gst-plugin-scanner"]
         for f in files_to_post_process:
             relocator.change_libs_path(f)
             run([strip, "-SX", f])
