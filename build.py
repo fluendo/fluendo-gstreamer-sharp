@@ -266,6 +266,14 @@ class BuildMacOS(Build):
         shutil.copy(subprojects / "gst-plugins-bad" / "gst" / "mpegtsdemux" / "libgstmpegtsdemux.dylib",
                     gst_native_plugins)
 
+        # There can several rpaths with the prefix dir, remove them all
+        while True:
+            try:
+                run(["install_name_tool", "-delete_rpath", "/Library/Frameworks/GStreamer.framework/Versions/Current/lib",
+                    gst_native / "libgstmpegts-1.0.0.dylib"])
+            except:
+                break
+
         relocator = OSXRelocator(False)
         strip = os.environ.get("STRIP", "strip")
         files_to_post_process = glob.glob(f"{gst_native}/*dylib") + \
