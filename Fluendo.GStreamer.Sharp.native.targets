@@ -12,8 +12,8 @@
 
     <!-- Copy native libraries to output directory -->
     <ItemGroup>
-        <None Condition="Exists('$(MSBuildThisFileDirectory)..\runtime\$(FluendoGStreamerSharpPlatform)\native')"
-              Include="$(MSBuildThisFileDirectory)..\runtime\$(FluendoGStreamerSharpPlatform)\native\**"
+        <None Condition="Exists('$(MSBuildThisFileDirectory)..\..\runtimes\$(FluendoGStreamerSharpPlatform)\native')"
+              Include="$(MSBuildThisFileDirectory)..\..\runtimes\$(FluendoGStreamerSharpPlatform)\native\**"
               Link="%(RecursiveDir)%(Filename)%(Extension)"
               Visible="false"
               CopyToOutputDirectory="Always" />
