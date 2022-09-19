@@ -274,6 +274,17 @@ class BuildMacOS(Build):
             except:
                 break
 
+        run(["rm", "-f", "libavcodec.58.dylib", "libavformat.58.dylib",
+            "libavfilter.7.dylib", "libavutil.56.dylib"], gst_native)
+        run(["ln", "-s", "libavcodec.58.134.100.dylib",
+            "libavcodec.58.dylib"], gst_native)
+        run(["ln", "-s", "libavformat.58.76.100.dylib",
+            "libavformat.58.dylib"], gst_native)
+        run(["ln", "-s", "libavfilter.7.110.100.dylib",
+            "libavfilter.7.dylib"], gst_native)
+        run(["ln", "-s", "libavutil.56.70.100.dylib",
+            "libavutil.56.dylib"], gst_native)
+
         relocator = OSXRelocator(False)
         strip = os.environ.get("STRIP", "strip")
         files_to_post_process = glob.glob(f"{gst_native}/*dylib") + \
