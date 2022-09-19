@@ -207,7 +207,7 @@ class Build:
 class BuildMacOS(Build):
 
     def __init__(self, source_dir: Path, build_dir: Path, cache_dir: Path = None):
-        super().__init__('Darwin', 'osx', source_dir, build_dir, cache_dir)
+        super().__init__('Darwin', 'osx-x64', source_dir, build_dir, cache_dir)
         self.nuget_cmd = ["mono", self.cache_dir / "nuget.exe"]
 
     def configure_gst(self):
@@ -220,10 +220,10 @@ class BuildMacOS(Build):
 
     def install_gst(self):
         super().install_gst()
-        gst_native = self.nuget_dir / "runtimes" / "osx" / "native"
+        gst_native = self.nuget_dir / "runtimes" / self.nuget_platform / "native"
         gst_native_lib = gst_native / "lib"
         gst_native_scanner_dir = self.nuget_dir / "runtimes" / \
-            "osx" / "native" / "libexec" / "gstreamer-1.0"
+            self.nuget_platform / "native" / "libexec" / "gstreamer-1.0"
         gst_native_scanner_dir.mkdir(parents=True, exist_ok=True)
         gst_native_plugins = gst_native / "lib" / "gstreamer-1.0"
         gst_native_plugins.mkdir(parents=True, exist_ok=True)
