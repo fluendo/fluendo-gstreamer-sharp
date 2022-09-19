@@ -9,7 +9,7 @@ import shlex
 import urllib.request
 from collections import defaultdict
 from pathlib import Path
-
+from osxrelocator import OSXRelocator
 
 GST_TEMPLATE = {
     'Windows': "gstreamer-1.0{}-msvc-x86_64-{}.msi",
@@ -221,7 +221,6 @@ class BuildMacOS(Build):
     def install_gst(self):
         super().install_gst()
         gst_native = self.nuget_dir / "runtimes" / self.nuget_platform / "native"
-        gst_native_lib = gst_native / "lib"
         gst_native_scanner_dir = self.nuget_dir / "runtimes" / \
             self.nuget_platform / "native" / "libexec" / "gstreamer-1.0"
         gst_native_scanner_dir.mkdir(parents=True, exist_ok=True)
@@ -253,30 +252,37 @@ class BuildMacOS(Build):
             if not key in files or len(files[key]) < len(f):
                 files[key] = f
         for f in files.values():
-            shutil.copy(f, gst_native_lib)
+            self.copy(f, gst_native)
 
         for file in glob.glob(f'{gst_install_dir / "lib" / "gstreamer-1.0"}/*.dylib'):
             if not Path(file).is_symlink():
-                shutil.copy(file, gst_native_plugins)
-        shutil.copy(gst_install_dir / "libexec" / "gstreamer-1.0" /
-                    "gst-plugin-scanner", gst_native_scanner_dir)
+                self.copy(file, gst_native_plugins)
+        self.copy(gst_install_dir / "libexec" / "gstreamer-1.0" /
+                  "gst-plugin-scanner", gst_native_scanner_dir)
 
         # Custom GStreamer
         shutil.copy(subprojects / "gst-plugins-bad" / "gst-libs" / "gst" / "mpegts" / "libgstmpegts-1.0.0.dylib",
-                    gst_native_lib)
+                    gst_native)
         shutil.copy(subprojects / "gst-plugins-bad" / "gst" / "mpegtsdemux" / "libgstmpegtsdemux.dylib",
                     gst_native_plugins)
 
+        relocator = OSXRelocator(False)
         strip = os.environ.get("STRIP", "strip")
-        files_to_strip = glob.glob(f"{gst_native_lib}/*dylib") + \
+        files_to_post_process = glob.glob(f"{gst_native}/*dylib") + \
             glob.glob(f"{gst_native_plugins}/*dylib")
-        for f in files_to_strip:
+        for f in files_to_post_process:
+            relocator.change_libs_path(f)
             run([strip, "-SX", f])
 
     def push_nuget_package(self):
         # From macOS we only push the native binaries
         self._push_nuget(
             f"Fluendo.GStreamer.Sharp.{self.nuget_platform}", self.nuget_version)
+
+    def copy(self, src, dst_dir):
+        filename = os.path.split(src)[1]
+        dst = dst_dir / filename
+        run(["lipo", src, "-thin", "x86_64", "-output", dst])
 
     def _get_gst_install_dir(self):
         return Path("/Library/Frameworks/GStreamer.framework/Versions/Current/")
