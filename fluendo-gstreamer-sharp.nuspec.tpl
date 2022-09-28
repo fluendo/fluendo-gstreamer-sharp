@@ -9,6 +9,10 @@
     <description>Unofficial GStreamer bindings maintained by Fluendo.</description>
     <tags>native graphics linux windows cross-platform</tags>
     <repository type="git" url="https://github.com/fluendo/fluendo-gstreamer-sharp.git" />
+    <dependencies>
+      <group targetFramework=".NETFramework4.7.2" />
+      <group targetFramework=".NETCoreApp3.0" />
+    </dependencies>
   </metadata>
    <files>
     <file src="nuget\*.dll" target="lib\net472" />
