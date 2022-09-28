@@ -13,6 +13,6 @@
    <files>
     <file src="nuget\*.dll" target="lib\net472" />
     <file src="nuget\*.dll.config" target="lib\net472" />
-    <file src="nuget\*.dll" target="lib\net5.0" />
+    <file src="nuget\*.dll" target="lib\netcoreapp3.0" />
   </files>
 </package>
