@@ -160,17 +160,17 @@ class Build:
         shutil.copy(self.source_dir / "fluendo-gstreamer-sharp.nuspec.tpl",
                     self.build_dir / "fluendo-gstreamer-sharp.nuspec")
         replace(self.build_dir / "fluendo-gstreamer-sharp.nuspec", replacements)
-        shutil.copy(self.source_dir / "fluendo-gstreamer-sharp-native.nuspec.tpl",
-                    self.build_dir / f"fluendo-gstreamer-sharp-{self.nuget_platform}.nuspec")
+        shutil.copy(self.source_dir / "fluendo-gstreamer-sharp.runtime.nuspec.tpl",
+                    self.build_dir / f"fluendo-gstreamer-sharp.runtime.{self.nuget_platform}.nuspec")
         replace(self.build_dir /
-                f"fluendo-gstreamer-sharp-{self.nuget_platform}.nuspec", replacements)
-        shutil.copy(self.source_dir / "Fluendo.GStreamer.Sharp.native.targets",
-                    self.nuget_dir / f"Fluendo.GStreamer.Sharp.{self.nuget_platform}.targets")
+                f"fluendo-gstreamer-sharp.runtime.{self.nuget_platform}.nuspec", replacements)
+        shutil.copy(self.source_dir / "Fluendo.GStreamer.Sharp.runtime.targets",
+                    self.nuget_dir / f"Fluendo.GStreamer.Sharp.runtime.{self.nuget_platform}.targets")
         open(self.nuget_dir / "_._", mode='w').close()
 
         run(self.nuget_cmd + ["pack", "fluendo-gstreamer-sharp.nuspec",
                               "-Verbosity", "detailed"], self.build_dir)
-        run(self.nuget_cmd + ["pack", f"fluendo-gstreamer-sharp-{self.nuget_platform}.nuspec",
+        run(self.nuget_cmd + ["pack", f"fluendo-gstreamer-sharp.runtime.{self.nuget_platform}.nuspec",
                               "-Verbosity", "detailed"], self.build_dir)
 
     def _install_package(self, path, log_file):
@@ -298,7 +298,7 @@ class BuildMacOS(Build):
     def push_nuget_package(self):
         # From macOS we only push the native binaries
         self._push_nuget(
-            f"Fluendo.GStreamer.Sharp.{self.nuget_platform}", self.nuget_version)
+            f"Fluendo.GStreamer.Sharp.runtime.{self.nuget_platform}", self.nuget_version)
 
     def copy(self, src, dst_dir):
         filename = os.path.split(src)[1]
@@ -376,7 +376,7 @@ class BuildWin64(Build):
         self._push_nuget(
             f"Fluendo.GStreamer.Sharp", self.nuget_version)
         self._push_nuget(
-            f"Fluendo.GStreamer.Sharp.{self.nuget_platform}", self.nuget_version)
+            f"Fluendo.GStreamer.Sharp.runtime.{self.nuget_platform}", self.nuget_version)
 
     def all_deps(self):
         self.install_intel_onevpl()
