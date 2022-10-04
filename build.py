@@ -160,6 +160,9 @@ class Build:
         shutil.copy(self.source_dir / "fluendo-gstreamer-sharp.nuspec.tpl",
                     self.build_dir / "fluendo-gstreamer-sharp.nuspec")
         replace(self.build_dir / "fluendo-gstreamer-sharp.nuspec", replacements)
+        shutil.copy(self.source_dir / "runtime.json.tpl",
+                    self.build_dir / "runtime.json")
+        replace(self.build_dir / "runtime.json", replacements)
         shutil.copy(self.source_dir / "fluendo-gstreamer-sharp.runtime.nuspec.tpl",
                     self.build_dir / f"fluendo-gstreamer-sharp.runtime.{self.nuget_platform}.nuspec")
         replace(self.build_dir /
