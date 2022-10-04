@@ -342,6 +342,9 @@ class BuildWin64(Build):
         gst_native = self.nuget_dir / "runtimes" / "win-x64" / "native"
         gst_native_plugins = gst_native / "lib" / "gstreamer-1.0"
         gst_native_plugins.mkdir(parents=True, exist_ok=True)
+        gst_native_scanner_dir = self.nuget_dir / "runtimes" / \
+            self.nuget_platform / "native" / "libexec" / "gstreamer-1.0"
+        gst_native_scanner_dir.mkdir(parents=True, exist_ok=True)
         subprojects = self.gst_build_dir / "subprojects"
 
         shutil.copy(self.source_dir / "GStreamer.Sharp" / "bin" / "x64" /
@@ -358,7 +361,7 @@ class BuildWin64(Build):
         for file in glob.glob(f'{gst_install_dir / "lib" / "gstreamer-1.0"}/*.dll'):
             shutil.copy(file, gst_native_plugins)
         shutil.copy(gst_install_dir / "libexec" / "gstreamer-1.0" /
-                    "gst-plugin-scanner.exe", gst_native)
+                    "gst-plugin-scanner.exe", gst_native_scanner_dir)
 
         # Custom GStreamer
         shutil.copy(subprojects / "gst-plugins-bad" / "gst-libs" / "gst" / "mpegts" / "gstmpegts-1.0-0.dll",
